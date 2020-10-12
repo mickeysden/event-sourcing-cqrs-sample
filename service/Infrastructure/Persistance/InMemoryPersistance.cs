@@ -7,5 +7,6 @@ namespace EventSourcingCQRS.Infrastructure.Persistance
     public class InMemoryPersistance
     {
         public static IList<MemoryPersistanceEventModel> domainEvents = new List<MemoryPersistanceEventModel>();
+        public static IList<MemoryPersistanceDomainEvent> publishedEvents = new List<MemoryPersistanceDomainEvent>();
     }
 }
