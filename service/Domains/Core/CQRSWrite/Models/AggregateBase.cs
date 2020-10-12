@@ -33,7 +33,7 @@ namespace EventSourcingCQRS.Domains.Core.CQRSWrite.Models
         }
 
         protected void RaiseEvent<TEvent>(TEvent @event)
-            where TEvent : EventSourcingEventBase<TId>
+            where TEvent : DomainEventBase<TId>
         {
             IDomainEvent<TId> eventWithAggregate = @event.WithAggregate(
                 Equals(id, default(TId)) ? @event.aggregateId : id,
