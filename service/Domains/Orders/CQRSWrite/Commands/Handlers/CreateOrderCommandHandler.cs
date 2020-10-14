@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using EventSourcingCQRS.Domains.Core.CQRSWrite.Commands.Handlers;
 using EventSourcingCQRS.Domains.Core.CQRSWrite.Repositories;
+using EventSourcingCQRS.Domains.Core.EventPublisher;
 using EventSourcingCQRS.Domains.Orders.CQRSWrite.Models;
 using EventSourcingCQRS.Infrastructure.Persistance;
 
@@ -10,8 +11,9 @@ namespace EventSourcingCQRS.Domains.Orders.CQRSWrite.Commands.Handlers
     {
         public async Task Handle(CreateOrderCommand command)
         {
-            var order = new OrderAggregate(new OrderAggregateId(), command.customerId, command.orderDate, command.orderStatus);
-            InMemoryDomainEventPublisher publisher = new InMemoryDomainEventPublisher();
+            var aggregateId = new OrderAggregateId();
+            var order = new OrderAggregate(aggregateId, command.customerId, command.orderDate, command.orderStatus);
+            IDomainEventPublisher<OrderAggregateId> publisher = new InMemoryDomainEventPublisher<OrderAggregateId>();
             IWriteRepository<OrderAggregate, OrderAggregateId> repo = new InMemoryWriteRepository<OrderAggregate, OrderAggregateId>(publisher);
             await repo.SaveAsync(order);
             // foreach (var pe in InMemoryPersistance.publishedEvents) Helpers.SimpleLogger.Log(pe.ToString());

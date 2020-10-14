@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using EventSourcingCQRS.Domains.Core.CQRSWrite.Models;
 using EventSourcingCQRS.Domains.Core.CQRSWrite.Repositories;
@@ -10,9 +12,9 @@ namespace EventSourcingCQRS.Infrastructure.Persistance
 {
     public class InMemoryWriteRepository<TAggregate, TAggregateId> : IWriteRepository<TAggregate, TAggregateId> where TAggregate : IAggregateRoot<TAggregateId>
     {
-        IDomainEventPublisher eventPublisher;
+        IDomainEventPublisher<TAggregateId> eventPublisher;
 
-        public InMemoryWriteRepository(IDomainEventPublisher eventPublisher)
+        public InMemoryWriteRepository(IDomainEventPublisher<TAggregateId> eventPublisher)
         {
             this.eventPublisher = eventPublisher;
         }
@@ -38,7 +40,7 @@ namespace EventSourcingCQRS.Infrastructure.Persistance
         private async Task AppendEventAsAsync(IDomainEvent<TAggregateId> @event)
         {
             await Task.Delay(1);
-            InMemoryPersistance.domainEvents.Add(GetMemoryPersistanceEventModel(@event));
+            InMemoryWritePersistance<TAggregateId>.domainEvents.Add(@event);
         }
 
         private MemoryPersistanceEventModel GetMemoryPersistanceEventModel(IDomainEvent<TAggregateId> @event)
@@ -70,6 +72,35 @@ namespace EventSourcingCQRS.Infrastructure.Persistance
             result.Add("eventDate");
             result.Add("eventType");
             return result;
+        }
+
+        public async Task<TAggregate> GetByIdAsync(string id)
+        {
+            try
+            {
+                await Task.Delay(1);
+                var aggregate = CreateEmptyAggregate();
+                IESAggregateRoot<TAggregateId> aggregatePersistence = (IESAggregateRoot<TAggregateId>)aggregate;
+
+                foreach (var @event in InMemoryWritePersistance<TAggregateId>.domainEvents.Where(x => x.aggregateId.ToString() == id).ToList())
+                {
+                    aggregatePersistence.ApplyEvent(@event, @event.aggregateVersion);
+                }
+                return aggregate;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private TAggregate CreateEmptyAggregate()
+        {
+            return (TAggregate)typeof(TAggregate)
+                    .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+                        null, new Type[0], new ParameterModifier[0])
+                    .Invoke(new object[0]);
+            // return Activator.CreateInstance<TAggregate>();
         }
     }
 }

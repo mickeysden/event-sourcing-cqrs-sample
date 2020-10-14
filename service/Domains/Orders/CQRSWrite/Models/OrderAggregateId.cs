@@ -9,6 +9,11 @@ namespace EventSourcingCQRS.Domains.Orders.CQRSWrite.Models
         {
             id = Guid.NewGuid();
         }
+
+        public OrderAggregateId(string aggregateIdString)
+        {
+            id = Guid.Parse(aggregateIdString);
+        }
         public Guid id { get; private set; }
         public string IdAsString() => id.ToString();
         public override string ToString() => IdAsString();

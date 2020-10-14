@@ -16,6 +16,11 @@ namespace EventSourcingCQRS.Domains.Orders.CQRSWrite.Models
             RaiseEvent(new OrderCreatedEvent(aggregateId, customerId, orderDate, orderStatus));
         }
 
+        private OrderAggregate()
+        {
+            items = new List<OrderLineItem>();
+        }
+
         internal void Apply(OrderCreatedEvent ev)
         {
             id = ev.aggregateId;

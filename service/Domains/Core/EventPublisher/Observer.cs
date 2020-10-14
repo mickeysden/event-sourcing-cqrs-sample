@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using EventSourcingCQRS.Domains.Core.CQRSRead.Repositories;
 
 namespace EventSourcingCQRS.Domains.Core.EventPublisher
@@ -12,9 +13,9 @@ namespace EventSourcingCQRS.Domains.Core.EventPublisher
             subject.RegisterObserver(this);
         }
 
-        public void update(string eventType)
+        public async Task update(string eventType)
         {
-            repository.UpdateReadModelOnEventPublish(eventType);
+            await repository.UpdateReadModelOnEventPublish(eventType);
         }
     }
 }

@@ -7,7 +7,7 @@ using EventSourcingCQRS.Helpers;
 
 namespace EventSourcingCQRS.Infrastructure.Persistance
 {
-    public class InMemoryDomainEventPublisher : IDomainEventPublisher
+    public class InMemoryDomainEventPublisher<TAggregateId> : IDomainEventPublisher<TAggregateId>
     {
         private Subject subject;
         private Observer observer;
@@ -18,15 +18,15 @@ namespace EventSourcingCQRS.Infrastructure.Persistance
         }
         public async Task publishEvent(string eventType, string aggregateId, IDictionary<string, object> eventData)
         {
-            await Task.Delay(1);
-            InMemoryPersistance.publishedEvents.Add(new MemoryPersistanceDomainEventModel()
+            InMemoryReadPersistance.publishedEvents.Add(new MemoryPersistanceDomainEventModel()
             {
                 eventType = eventType,
                 eventDate = DateTime.Now,
                 aggregateId = aggregateId,
                 eventData = eventData
             });
-            subject.setEventPublished(eventType);
+            SimpleLogger.Log(eventType + " " + aggregateId);
+            await subject.setEventPublished(eventType);
         }
     }
 }

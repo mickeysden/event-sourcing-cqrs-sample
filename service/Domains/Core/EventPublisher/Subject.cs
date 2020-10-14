@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EventSourcingCQRS.Domains.Core.EventPublisher
 {
@@ -6,14 +7,14 @@ namespace EventSourcingCQRS.Domains.Core.EventPublisher
     {
         private List<IObserver> observers = new List<IObserver>();
         private string eventType { get; set; }
-        public void setEventPublished(string eventType)
+        public async Task setEventPublished(string eventType)
         {
             this.eventType = eventType;
-            NotifyObservers();
+            await NotifyObservers();
         }
-        public void NotifyObservers()
+        public async Task NotifyObservers()
         {
-            foreach (var o in observers) o.update(eventType);
+            foreach (var o in observers) await o.update(eventType);
         }
 
         public void RegisterObserver(IObserver observer) => observers.Add(observer);

@@ -8,5 +8,6 @@ namespace EventSourcingCQRS.Domains.Core.CQRSWrite.Models
         TAggregateId aggregateId { get; }
         long aggregateVersion { get; }
         DateTime eventDate { get; }
+        string eventType { get; }
     }
 }

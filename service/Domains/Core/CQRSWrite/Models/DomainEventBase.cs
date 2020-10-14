@@ -10,6 +10,7 @@ namespace EventSourcingCQRS.Domains.Core.CQRSWrite.Models
         {
             eventId = Guid.NewGuid();
             eventDate = DateTime.Now;
+            eventType = this.GetType().Name;
         }
         protected DomainEventBase(TAggregateId aggregateId) : this() => this.aggregateId = aggregateId;
         protected DomainEventBase(TAggregateId aggregateId, long aggregateVersion) : this(aggregateId) => this.aggregateVersion = aggregateVersion;
@@ -17,7 +18,7 @@ namespace EventSourcingCQRS.Domains.Core.CQRSWrite.Models
         public TAggregateId aggregateId { get; private set; }
         public long aggregateVersion { get; private set; }
         public DateTime eventDate { get; private set; }
-
+        public string eventType { get; private set; }
         public override bool Equals(object obj) => base.Equals(obj as DomainEventBase<TAggregateId>);
 
         public bool Equals(DomainEventBase<TAggregateId> other) => other != null && eventId.Equals(other.eventId);

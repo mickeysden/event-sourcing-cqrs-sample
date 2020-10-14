@@ -6,6 +6,7 @@ using EventSourcingCQRS.Domains.Core.CQRSRead.Repositories;
 using EventSourcingCQRS.Domains.Core.CQRSWrite.Commands.Handlers;
 using EventSourcingCQRS.Domains.Core.EventPublisher;
 using EventSourcingCQRS.Domains.Orders.CQRSWrite.Commands;
+using EventSourcingCQRS.Domains.Orders.CQRSWrite.Models;
 using EventSourcingCQRS.Helpers;
 using EventSourcingCQRS.Infrastructure.Persistance;
 using Serilog;
@@ -36,14 +37,14 @@ namespace tests
             });
 
             //Then
-            Assert.True(InMemoryPersistance.publishedEvents[InMemoryPersistance.publishedEvents.Count - 1].eventType == "OrderCreatedEvent");
+            Assert.True(InMemoryReadPersistance.publishedEvents[InMemoryReadPersistance.publishedEvents.Count - 1].eventType == "OrderCreatedEvent");
         }
 
         [Fact]
         public async Task GivenEventPublished_WhenOrderRelatedEvent_ThenUpdateOrderReadModel()
         {
             //Given
-            var latestPublishedEvent = InMemoryPersistance.publishedEvents.OrderByDescending(x => x.eventDate).FirstOrDefault();
+            var latestPublishedEvent = InMemoryReadPersistance.publishedEvents.OrderByDescending(x => x.eventDate).FirstOrDefault();
 
             //When
             if (latestPublishedEvent != null && OrderRelatedEvents().Contains(latestPublishedEvent.eventType))
@@ -51,7 +52,38 @@ namespace tests
                 //Then
                 IReadRepository repo = new InMemoryReadRepository();
                 await repo.UpdateReadModelOnEventPublish(latestPublishedEvent.eventType);
-                Assert.True(InMemoryPersistance.readOrders.Where(x => x.aggregateId == latestPublishedEvent.aggregateId).FirstOrDefault() != null);
+                Assert.True(InMemoryReadPersistance.readOrders.Where(x => x.aggregateId == latestPublishedEvent.aggregateId).FirstOrDefault() != null);
+            }
+        }
+
+        [Fact]
+        public async Task GivenOrderAggregate_WhenLineItemAdded_ThenUpdateAggregateAndPublishEvent()
+        {
+            //Given
+            var publishedEvent = InMemoryReadPersistance.publishedEvents
+                                    .Where(x => x.eventType == "OrderCreatedEvent")
+                                    .OrderByDescending(x => x.eventDate)
+                                    .FirstOrDefault();
+            if (publishedEvent != null)
+            {
+                SimpleLogger.Log("order aggregate found " + publishedEvent.aggregateId);
+
+                //When
+                var dispatcher = new CommandDispatcher();
+                await dispatcher.Dispatch(new AddOrderLineItemCommand()
+                {
+                    orderAggregateId = publishedEvent.aggregateId,
+                    productId = Guid.NewGuid().ToString(),
+                    qty = 10,
+                    unitPrice = 100.0
+                });
+
+
+                //Then
+                Assert.True(InMemoryReadPersistance.publishedEvents.Where(x => x.eventType == "AddOrderLineItemEvent").FirstOrDefault() != null);
+                var readOrder = InMemoryReadPersistance.readOrders.Where(x => x.aggregateId == publishedEvent.aggregateId).FirstOrDefault();
+                Assert.True(readOrder != null);
+                Assert.True(readOrder.items.Any());
             }
         }
 
