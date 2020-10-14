@@ -8,7 +8,7 @@ namespace EventSourcingCQRS.Helpers
         {
             return "{" + string.Join("}\n{", obj.GetType()
                                 .GetProperties()
-                                .Select(prop => prop.Name + " : " + prop.GetValue(obj).ToString())) + "}";
+                                .Select(prop => prop.Name + " : " + prop.GetValue(obj).ToString()) + "}");
         }
 
     }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using EventSourcingCQRS.Domains.Core.CQRSWrite.Models;
 using EventSourcingCQRS.Domains.Core.CQRSWrite.Repositories;
 using EventSourcingCQRS.Domains.Core.EventPublisher;
+using EventSourcingCQRS.Helpers;
 
 namespace EventSourcingCQRS.Infrastructure.Persistance
 {

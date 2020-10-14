@@ -15,7 +15,7 @@ namespace EventSourcingCQRS.Infrastructure.Persistance
         public override string ToString()
         {
             var stringBuilder = new StringBuilder();
-            stringBuilder.Append("--------------------" + eventType + "------------------\n");
+            stringBuilder.Append("\n--------------------" + eventType + "------------------\n");
             stringBuilder.Append("{eventId : " + eventId.ToString());
             stringBuilder.Append("\naggregateId : " + aggregateId.ToString());
             stringBuilder.Append("\naggregateVersion : " + aggregateVersion);

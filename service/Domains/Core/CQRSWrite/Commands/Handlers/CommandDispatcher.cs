@@ -1,12 +1,13 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace EventSourcingCQRS.Domains.Core.CQRSWrite.Commands.Handlers
 {
     public class CommandDispatcher
     {
-        public void Dispatch<TCommand>(TCommand command) where TCommand : class
+        public async Task Dispatch<TCommand>(TCommand command) where TCommand : class
         {
             //derive a type based on the ICommand interface and the generic method argument
             Type handler = typeof(ICommandHandler<>);
@@ -23,7 +24,7 @@ namespace EventSourcingCQRS.Domains.Core.CQRSWrite.Commands.Handlers
             foreach (Type type in concreteTypes)
             {
                 var concreteHandler = Activator.CreateInstance(type) as ICommandHandler<TCommand>;
-                concreteHandler?.Handle(command);
+                await concreteHandler?.Handle(command);
             }
         }
     }
