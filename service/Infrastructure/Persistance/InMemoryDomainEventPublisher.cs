@@ -9,6 +9,13 @@ namespace EventSourcingCQRS.Infrastructure.Persistance
 {
     public class InMemoryDomainEventPublisher : IDomainEventPublisher
     {
+        private Subject subject;
+        private Observer observer;
+        public InMemoryDomainEventPublisher()
+        {
+            subject = new Subject();
+            observer = new Observer(new InMemoryReadRepository(), subject);
+        }
         public async Task publishEvent(string eventType, string aggregateId, IDictionary<string, object> eventData)
         {
             await Task.Delay(1);
@@ -19,6 +26,7 @@ namespace EventSourcingCQRS.Infrastructure.Persistance
                 aggregateId = aggregateId,
                 eventData = eventData
             });
+            subject.setEventPublished(eventType);
         }
     }
 }
