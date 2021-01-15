@@ -16,7 +16,6 @@ namespace EventSourcingCQRS.Domains.Orders.CQRSWrite.Commands.Handlers
             IDomainEventPublisher<OrderAggregateId> publisher = new InMemoryDomainEventPublisher<OrderAggregateId>();
             IWriteRepository<OrderAggregate, OrderAggregateId> repo = new InMemoryWriteRepository<OrderAggregate, OrderAggregateId>(publisher);
             await repo.SaveAsync(order);
-            // foreach (var pe in InMemoryPersistance.publishedEvents) Helpers.SimpleLogger.Log(pe.ToString());
         }
     }
 }
